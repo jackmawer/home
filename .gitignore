@@ -6,6 +6,7 @@
 
 # Dotfiles script
 !dotfiles.sh
+!install.sh
 
 # ZSH and oh-my-zsh config files
 !.zshrc
