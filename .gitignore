@@ -1,8 +1,9 @@
 # Ignore everything by default...
 /*
 
-# ...except gitignore itself
+# ...except gitignore itself and readme
 !.gitignore
+!README.md
 
 # Dotfiles script
 !dotfiles.sh
