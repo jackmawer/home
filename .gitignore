@@ -1,0 +1,14 @@
+# Ignore everything by default...
+*
+
+# ...except directories and gitignore itself
+!*/
+!.gitignore
+
+# ZSH and oh-my-zsh config files
+!.zshrc
+!.profile
+
+# Tmux
+!.tmux.conf
+!.doublegreen.tmuxtheme
