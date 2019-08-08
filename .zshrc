@@ -86,7 +86,7 @@ export HOST_COLOUR=`echo $((16#$(hostname | xxd -p))) | cut -c -6`
 prompt_dir() {
   if [ -n "$HOST_COLOUR" ]
   then
-  	prompt_segment \#$HOST_COLOURe $CURRENT_FG '%~'
+  	prompt_segment \#$HOST_COLOUR $CURRENT_FG '%~'
   else
   	prompt_segment white $CURRENT_FG '%~'
   fi
