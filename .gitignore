@@ -1,9 +1,11 @@
 # Ignore everything by default...
-*
+/*
 
-# ...except directories and gitignore itself
-!*/
+# ...except gitignore itself
 !.gitignore
+
+# Dotfiles script
+!dotfiles.sh
 
 # ZSH and oh-my-zsh config files
 !.zshrc
