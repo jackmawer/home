@@ -93,6 +93,11 @@ host_colour() {
 
 # Custom colour prompt for agnoster
 # to differentiate hosts
+prompt_context() {
+	if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+	    prompt_segment black $(host_colour) "%(!.%{%F{yellow}%}.)%n@%m"
+	fi
+}
 prompt_dir() {
   prompt_segment $(host_colour) $CURRENT_FG '%~'
 }
