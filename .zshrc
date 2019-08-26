@@ -79,17 +79,22 @@ export EDITOR="micro"
 # export ARCHFLAGS="-arch x86_64"
 
 # Host colour generation
-export HOST_COLOUR=`echo $((16#$(hostname | xxd -p))) | cut -c -6`
+ord() {
+  LC_CTYPE=C printf '%d' "'$1"
+}
+host_colour() {
+	local num=$(ord $(hostname))
+	while [[ $num -gt 255 ]]
+	do
+	  local num=$[$num-255]
+	done
+	echo $num
+}
 
 # Custom colour prompt for agnoster
 # to differentiate hosts
 prompt_dir() {
-  if [ -n "$HOST_COLOUR" ]
-  then
-  	prompt_segment \#$HOST_COLOUR $CURRENT_FG '%~'
-  else
-  	prompt_segment white $CURRENT_FG '%~'
-  fi
+  prompt_segment $(host_colour) $CURRENT_FG '%~'
 }
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
