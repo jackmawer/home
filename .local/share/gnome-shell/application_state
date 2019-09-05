@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<application-state>
+  <context id="">
+    <application id="gnome-control-center.desktop" score="11.201171875" last-seen="1566988215"/>
+    <application id="code-insiders_code-insiders.desktop" score="2483" last-seen="1567633771"/>
+    <application id="org.gnome.Evolution-alarm-notify.desktop" score="519.11533737182617" last-seen="1567670769"/>
+    <application id="veracrypt.desktop" score="3.75" last-seen="1567459529"/>
+    <application id="wine-Programs-Twitch Sings.desktop" score="0" last-seen="1567097561"/>
+    <application id="firefox.desktop" score="9679.3430953025818" last-seen="1567512604"/>
+    <application id="org.gnome.tweaks.desktop" score="9" last-seen="1567516614"/>
+    <application id="steam.desktop" score="342.25" last-seen="1567203311"/>
+    <application id="gitkraken_gitkraken.desktop" score="143" last-seen="1567633771"/>
+    <application id="org.gnome.Software.desktop" score="9.9395456314086914" last-seen="1567438532"/>
+    <application id="torbrowser.desktop" score="15.375" last-seen="1566751449"/>
+    <application id="virt-manager.desktop" score="6.5" last-seen="1566924321"/>
+    <application id="audacity.desktop" score="1" last-seen="1567510183"/>
+    <application id="spotify_spotify.desktop" score="301.03125" last-seen="1567502141"/>
+    <application id="screencloud_screencloud.desktop" score="15.5" last-seen="1567623468"/>
+    <application id="discord-canary.desktop" score="21156.551953792572" last-seen="1567669713"/>
+    <application id="firefox-trunk.desktop" score="0" last-seen="0"/>
+    <application id="org.gnome.Terminal.desktop" score="682.83511829376221" last-seen="1567671013"/>
+    <application id="com.github.wwmm.pulseeffects.desktop" score="16.375" last-seen="1566946821"/>
+    <application id="org.gnome.DiskUtility.desktop" score="1.75" last-seen="1567006004"/>
+    <application id="org.gnome.Nautilus.desktop" score="208.06466436386108" last-seen="1567669814"/>
+    <application id="org.gnome.Shell.PortalHelper.desktop" score="0" last-seen="1566952338"/>
+    <application id="pavucontrol.desktop" score="13.640380859375" last-seen="1567518841"/>
+    <application id="org.gnome.FileRoller.desktop" score="4.69140625" last-seen="1567505967"/>
+    <application id="eog.desktop" score="79.96484375" last-seen="1567633599"/>
+    <application id="musixmatch.desktop" score="53.5" last-seen="1567501695"/>
+    <application id="update-manager.desktop" score="1.6113395690917969" last-seen="1567506268"/>
+    <application id="yelp.desktop" score="2.875" last-seen="1566946845"/>
+    <application id="display-im6.q16.desktop" score="0" last-seen="1567098142"/>
+    <application id="org.gnome.gedit.desktop" score="267.83984375" last-seen="1567546297"/>
+    <application id="mpv.desktop" score="98.860007286071777" last-seen="1567633338"/>
+    <application id="minecraft-launcher.desktop" score="9.04296875" last-seen="1567374768"/>
+  </context>
+</application-state>
