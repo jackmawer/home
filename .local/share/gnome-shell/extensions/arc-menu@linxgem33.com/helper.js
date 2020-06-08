@@ -1,9 +1,12 @@
 /*
- * Arc Menu: The new applications menu for Gnome 3.
+ * Arc Menu - A traditional application menu for GNOME 3
  *
- * Copyright (C) 2017 LinxGem33
- * Copyright (C) 2017 Alexander Rüedlinger
- *
+ * Arc Menu Lead Developer
+ * Andrew Zaech https://gitlab.com/AndrewZaech
+ * 
+ * Arc Menu Founder/Maintainer/Graphic Designer
+ * LinxGem33 https://gitlab.com/LinxGem33
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
@@ -19,15 +22,12 @@
  */
 
 // Import Libraries
-const Main = imports.ui.main;
-const Meta = imports.gi.Meta;
-const Gio = imports.gi.Gio;
-const Gtk = imports.gi.Gtk;
-const Shell = imports.gi.Shell;
-
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const {Gio, GObject, Gtk, Meta, Shell} = imports.gi;
 const Constants = Me.imports.constants;
+const Main = imports.ui.main;
+const Util = imports.misc.util;
+
 
 // Local constants
 const MUTTER_SCHEMA = 'org.gnome.mutter';
@@ -41,70 +41,105 @@ var MenuHotKeybinder = class {
 
     constructor(menuToggler) {
         this._menuToggler = menuToggler;
+        this.hotKeyEnabled = false;
+        this.overlayKeyID = 0;
+        this.defaultOverlayKeyID = 0;
+        this.arcMenuCalling = false;
         this._mutterSettings = new Gio.Settings({ 'schema': MUTTER_SCHEMA });
         this._wmKeybindings = new Gio.Settings({ 'schema': WM_KEYBINDINGS_SCHEMA });
-        this._keybindingHandlerId = Main.layoutManager.connect('startup-complete',
-            this._setKeybindingHandler.bind(this));
-        this._setKeybindingHandler();
+        this._oldPanelMainMenuKey = this._wmKeybindings.get_value('panel-main-menu');
+        this._oldOverlayKey = this._mutterSettings.get_value('overlay-key');
+        this.overlayKeyConnectID = this._mutterSettings.connect('changed::overlay-key', () => {
+            if(!this.arcMenuCalling)
+                this._oldOverlayKey = this._mutterSettings.get_value('overlay-key');
+        });
+        this.panelMainMenuKeyConnectID = this._wmKeybindings.connect('changed::panel-main-menu', () => {
+            if(!this.arcMenuCalling)
+                this._oldPanelMainMenuKey = this._wmKeybindings.get_value('panel-main-menu');
+        });
+        this._hotkeyMenuToggleId = Main.layoutManager.connect('startup-complete', ()=>{
+            this._updateHotkeyMenuToggle();
+        });
     }
 
-    // Enable a hot key for opening the menu
+    // Set Main.overview.toggle to toggle Arc Menu instead
     enableHotKey(hotkey) {
+        this.arcMenuCalling = true;
         if (hotkey == Constants.SUPER_L) {
-            this._disableOverlayKey();
-        } else {
-            this._enableOverlayKey();
+            this._mutterSettings.set_string('overlay-key', hotkey);
+            Main.wm.allowKeybinding('overlay-key', Shell.ActionMode.NORMAL |
+                Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP);
+            this.hotKeyEnabled =  true;
+            if(!Main.layoutManager._startingUp)
+                this._updateHotkeyMenuToggle();
         }
-        this._wmKeybindings.set_strv('panel-main-menu', [hotkey]);
+        else{
+            this._wmKeybindings.set_strv('panel-main-menu', [hotkey]);
+        }
+        this.arcMenuCalling = false;
     }
 
-    // Disable the set hot key for opening the menu
+    // Set Main.overview.toggle to default function and default hotkey
     disableHotKey() {
-        // Restore the default settings
-        if (this._isOverlayKeyDisabled()) {
-            this._enableOverlayKey();
+        this.arcMenuCalling = true;
+        this._mutterSettings.set_value('overlay-key', this._oldOverlayKey);
+        if(this.overlayKeyID > 0){
+            global.display.disconnect(this.overlayKeyID);
+            this.overlayKeyID = null;
         }
-        let defaultPanelMainMenu = this._wmKeybindings.get_default_value('panel-main-menu');
-        this._wmKeybindings.set_value('panel-main-menu', defaultPanelMainMenu);
+        if(this.defaultOverlayKeyID>0){
+            GObject.signal_handler_unblock(global.display, this.defaultOverlayKeyID);
+            this.defaultOverlayKeyID = null;
+        }
+        Main.wm.allowKeybinding('overlay-key', Shell.ActionMode.NORMAL |
+            Shell.ActionMode.OVERVIEW);
+        this.hotKeyEnabled = false;
+    
+        this._wmKeybindings.set_value('panel-main-menu', this._oldPanelMainMenuKey);    
+        this.arcMenuCalling = false;
+        
     }
 
-    // Set the menu keybinding handler
-    _setKeybindingHandler() {
+    // Update hotkey menu toggle function
+    _updateHotkeyMenuToggle() {
+        if(this.hotKeyEnabled){
+            Main.wm.allowKeybinding('overlay-key', Shell.ActionMode.NORMAL |
+            Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP);
+
+            //Find signal ID in Main.js that connects 'overlay-key' to global.display and toggles Main.overview
+            let [bool,signal_id, detail] = GObject.signal_parse_name('overlay-key', global.display, true);
+            this.defaultOverlayKeyID = GObject.signal_handler_find(global.display, GObject.SignalMatchType.ID, signal_id, detail, null, null, null); 
+
+            //If signal ID found, block it and connect new 'overlay-key' to toggle arc menu.
+            if(this.defaultOverlayKeyID>0){
+                GObject.signal_handler_block(global.display, this.defaultOverlayKeyID);
+                this.overlayKeyID = global.display.connect('overlay-key', () => {
+                    this._menuToggler();
+                });
+            }
+            else
+                global.log("Arc Menu ERROR - Failed to set Super_L hotkey");
+        }   
         Main.wm.setCustomKeybindingHandler('panel-main-menu',
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
             this._menuToggler.bind(this));
     }
-
-    // Check if the overlay keybinding is disabled in mutter
-    _isOverlayKeyDisabled() {
-        return this._mutterSettings.get_string('overlay-key') == Constants.EMPTY_STRING;
-    }
-
-    // Disable the overlay keybinding in mutter
-    _disableOverlayKey() {
-        // Simple hack to deactivate the overlay key by setting
-        // the keybinding of the overlay key to an empty string
-        this._mutterSettings.set_string('overlay-key', Constants.EMPTY_STRING);
-    }
-
-    // Enable and restore the default settings of the overlay key in mutter
-    _enableOverlayKey() {
-        this._mutterSettings.set_value('overlay-key', this._getDefaultOverlayKey());
-    }
-
-    // Get the default overelay keybinding from mutter
-    _getDefaultOverlayKey() {
-        return this._mutterSettings.get_default_value('overlay-key');
-    }
-
     // Destroy this object
     destroy() {
         // Clean up and restore the default behaviour
+        if(this.overlayKeyConnectID){
+            this._mutterSettings.disconnect(this.overlayKeyConnectID);
+            this.overlayKeyConnectID = null;
+        }
+        if(this.panelMainMenuKeyConnectID){
+            this._wmKeybindings.disconnect(this.panelMainMenuKeyConnectID);
+            this.panelMainMenuKeyConnectID = null;
+        }
         this.disableHotKey();
-        if (this._keybindingHandlerId) {
+        if (this._hotkeyMenuToggleId) {
             // Disconnect the keybinding handler
-            Main.layoutManager.disconnect(this._keybindingHandlerId);
-            this._keybindingHandlerId = null;
+            Main.layoutManager.disconnect(this._hotkeyMenuToggleId);
+            this._hotkeyMenuToggleId = null;
         }
     }
 };
@@ -177,14 +212,22 @@ var KeybindingManager = class {
  * the gnome-shell hot corners.
  */
 var HotCornerManager = class {
-    constructor(settings) {
+    constructor(settings, menuToggler) {
         this._settings = settings;
+        this._menuToggler = menuToggler;
         this._hotCornersChangedId = Main.layoutManager.connect('hot-corners-changed', this._redisableHotCorners.bind(this));
     }
 
     _redisableHotCorners() {
-        if (this._settings.get_boolean('disable-activities-hotcorner')) {
+        let hotCornerAction = this._settings.get_enum('hot-corners');
+        if(hotCornerAction == Constants.HOT_CORNERS_ACTION.Disabled) {
             this.disableHotCorners();
+        }
+        else if(hotCornerAction == Constants.HOT_CORNERS_ACTION.ToggleArcMenu) {
+            this.modifyHotCorners();
+        }
+        else if(hotCornerAction == Constants.HOT_CORNERS_ACTION.Custom) {
+            this.modifyHotCorners();
         }
     }
 
@@ -203,7 +246,7 @@ var HotCornerManager = class {
     disableHotCorners() {
         let hotCorners = this._getHotCorners();
         // Monkey patch each hot corner
-        hotCorners.forEach(function (corner) {
+        hotCorners.forEach((corner) => {
             if (corner) {
                 corner._toggleOverview = () => { };
                 corner._pressureBarrier._trigger = () => { };
@@ -211,11 +254,46 @@ var HotCornerManager = class {
         });
     }
 
+    // Change hotcorners to toggle Arc Menu
+    modifyHotCorners() {
+        let hotCorners = this._getHotCorners();
+        let hotCornerAction = this._settings.get_enum('hot-corners');
+        // Monkey patch each hot corner
+        hotCorners.forEach((corner) => {
+            if (corner) {
+                corner._toggleOverview = () => { };
+                corner._pressureBarrier._trigger = () => { 
+                    corner._pressureBarrier._isTriggered = true;
+                    if(corner._ripples)
+                        corner._ripples.playAnimation(corner._x, corner._y);
+                    else
+                        corner._rippleAnimation();
+                    if(hotCornerAction == Constants.HOT_CORNERS_ACTION.ToggleArcMenu)
+                        this._menuToggler(); 
+                    else if(hotCornerAction == Constants.HOT_CORNERS_ACTION.Custom){
+                        let cmd = this._settings.get_string('custom-hot-corner-cmd');
+                        if(cmd == "ArcMenu_ShowAllApplications"){
+                            Main.overview.viewSelector._toggleAppsPage();
+                        }
+                        else if(cmd == "ArcMenu_RunCommand"){
+                            Main.openRunDialog();
+                        }
+                        else{
+                            Util.spawnCommandLine(this._settings.get_string('custom-hot-corner-cmd'));
+                        }
+                    }
+                    
+                    corner._pressureBarrier._reset();
+                };
+            }
+        });
+    }
+
     // Destroy this object
     destroy() {
-        if (this._hotCornersChangedId) {
+        if (this._hotCornersChangedId>0) {
             Main.layoutManager.disconnect(this._hotCornersChangedId);
-            this._hotCornersChangedId = null;
+            this._hotCornersChangedId = 0;
         }
 
         // Clean up and restore the default behaviour

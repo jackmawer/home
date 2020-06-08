@@ -1,12 +1,12 @@
 /*
- * Arc Menu: The new applications menu for Gnome 3.
- * Copyright (C) 2017-2019 LinxGem33 
+ * Arc Menu - A traditional application menu for GNOME 3
  *
- * Copyright (C) 2019 Andrew Zaech 
- *
- * **Based off https://gitlab.gnome.org/GNOME/gnome-shell-extensions/tree/master/extensions/places-menu
- * Modified to better suit Arc Menu's needs.**
- *
+ * Arc Menu Lead Developer
+ * Andrew Zaech https://gitlab.com/AndrewZaech
+ * 
+ * Arc Menu Founder/Maintainer/Graphic Designer
+ * LinxGem33 https://gitlab.com/LinxGem33
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
@@ -21,17 +21,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const {St, Gio, GLib, Shell } = imports.gi;
-const Signals = imports.signals;
-
+const Clutter = imports.gi.Clutter;
+const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
+const GObject = imports.gi.GObject;
 const Main = imports.ui.main;
-const ShellMountOperation = imports.ui.shellMountOperation;
+const MW = Me.imports.menuWidgets;
 const PopupMenu = imports.ui.popupMenu;
-const Gettext = imports.gettext.domain('gnome-shell-extensions');
+const ShellMountOperation = imports.ui.shellMountOperation;
+const Signals = imports.signals;
 const _ = Gettext.gettext;
-const N_ = x => x;
-const BACKGROUND_SCHEMA = 'org.gnome.desktop.background';
 
+const BACKGROUND_SCHEMA = 'org.gnome.desktop.background';
 const Hostname1Iface = '<node> \
 <interface name="org.freedesktop.hostname1"> \
 <property name="PrettyHostname" type="s" access="read" /> \
@@ -39,9 +41,9 @@ const Hostname1Iface = '<node> \
 </node>';
 const Hostname1 = Gio.DBusProxy.makeProxyWrapper(Hostname1Iface);
 
-var PlaceMenuItem = class PlaceMenuItem extends PopupMenu.PopupBaseMenuItem {
-    constructor(info,button) {
-        super();
+var PlaceMenuItem = GObject.registerClass(class ArcMenu_PlaceMenuItem2 extends MW.ArcMenuPopupBaseMenuItem{
+    _init(info,button) {
+        super._init();
         this._info = info;
         this._button = button;
         this._icon = new St.Icon({
@@ -51,8 +53,8 @@ var PlaceMenuItem = class PlaceMenuItem extends PopupMenu.PopupBaseMenuItem {
         this.actor.add_child(this._icon);
         if(info.name.length>=20)
             info.name = info.name.slice(0,20) + "...";
-        this._label = new St.Label({ text: info.name, x_expand: true});
-        this.actor.add_child(this._label);
+        this.label = new St.Label({ text: info.name, x_expand: true});
+        this.actor.add_child(this.label);
 
         if (info.isRemovable()) {
             this._ejectIcon = new St.Icon({
@@ -66,30 +68,26 @@ var PlaceMenuItem = class PlaceMenuItem extends PopupMenu.PopupBaseMenuItem {
 
         this._changedId = info.connect('changed',
                                        this._propertiesChanged.bind(this));
+        this.actor.connect('destroy',()=>{
+            if (this._changedId) {
+                this._info.disconnect(this._changedId);
+                this._changedId = 0;
+            }
+        });
     }
-
-    destroy() {
-        if (this._changedId) {
-            this._info.disconnect(this._changedId);
-            this._changedId = 0;
-        }
-
-        super.destroy();
-    }
-
+   
     activate(event) {
         this._info.launch(event.get_time());
         this._button.leftClickMenu.toggle();
         super.activate(event);
     }
-
     _propertiesChanged(info) {
         this._icon.gicon = info.icon;
-        this._label.text = info.name;
+        this.label.text = info.name;
     }
-}
+});
 
-var PlaceInfo = class PlaceInfo {
+var PlaceInfo = class ArcMenu_PlaceInfo2 {
     constructor() {
         this._init.apply(this, arguments);
     }
@@ -210,7 +208,7 @@ var PlaceInfo = class PlaceInfo {
 }
 Signals.addSignalMethods(PlaceInfo.prototype);
 
-var RootInfo = class RootInfo extends PlaceInfo {
+var RootInfo = class ArcMenu_RootInfo extends PlaceInfo {
     _init() {
         super._init('devices', Gio.File.new_for_path('/'), _('Computer'));
 
@@ -221,10 +219,11 @@ var RootInfo = class RootInfo extends PlaceInfo {
                 return;
 
             this._proxy = obj;
-            this._proxy.connect('g-properties-changed',
+            this._proxyID = this._proxy.connect('g-properties-changed',
                                 this._propertiesChanged.bind(this));
             this._propertiesChanged(obj);
         });
+
     }
 
     getIcon() {
@@ -241,16 +240,20 @@ var RootInfo = class RootInfo extends PlaceInfo {
     }
 
     destroy() {
+        if (this._proxyID) {
+            this._proxy.disconnect(this._proxyID);
+            this._proxy = 0;
+        }
         if (this._proxy) {
             this._proxy.run_dispose();
             this._proxy = null;
         }
         super.destroy();
     }
-}
+};
 
 
-var PlaceDeviceInfo = class PlaceDeviceInfo extends PlaceInfo {
+var PlaceDeviceInfo = class ArcMenu_PlaceDeviceInfo extends PlaceInfo {
     _init(kind, mount) {
         this._mount = mount;
         super._init(kind, mount.get_root(), mount.get_name());
@@ -299,9 +302,9 @@ var PlaceDeviceInfo = class PlaceDeviceInfo extends PlaceInfo {
         let msg = _('Ejecting drive “%s” failed:').format(this._mount.get_name());
         Main.notifyError(msg, exception.message);
     }
-}
+};
 
-var PlaceVolumeInfo = class PlaceVolumeInfo extends PlaceInfo {
+var PlaceVolumeInfo = class ArcMenu_PlaceVolumeInfo extends PlaceInfo {
     _init(kind, volume) {
         this._volume = volume;
         super._init(kind, volume.get_activation_root(), volume.get_name());
@@ -325,7 +328,7 @@ var PlaceVolumeInfo = class PlaceVolumeInfo extends PlaceInfo {
     getIcon() {
         return this._volume.get_symbolic_icon();
     }
-}
+};
 
 const DEFAULT_DIRECTORIES = [
     GLib.UserDirectory.DIRECTORY_DOCUMENTS,
@@ -335,7 +338,7 @@ const DEFAULT_DIRECTORIES = [
     GLib.UserDirectory.DIRECTORY_VIDEOS,
 ];
 
-var PlacesManager = class {
+var PlacesManager = class ArcMenu_PlacesManager {
     constructor() {
         this._places = {
             special: [],

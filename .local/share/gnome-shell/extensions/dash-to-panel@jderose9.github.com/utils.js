@@ -22,9 +22,11 @@
  */
 
 const Clutter = imports.gi.Clutter;
+const Config = imports.misc.config;
 const GdkPixbuf = imports.gi.GdkPixbuf
 const Gi = imports._gi;
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 const Meta = imports.gi.Meta;
@@ -32,15 +34,22 @@ const Shell = imports.gi.Shell;
 const St = imports.gi.St;
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
+const MessageTray = imports.ui.messageTray;
 const Util = imports.misc.util;
 
 var TRANSLATION_DOMAIN = imports.misc.extensionUtils.getCurrentExtension().metadata['gettext-domain'];
+var SCROLL_TIME = Util.SCROLL_TIME / (Util.SCROLL_TIME > 1 ? 1000 : 1);
+
+//Clutter implicit animations are available since 3.34
+//prefer those over Tweener if available
+if (Config.PACKAGE_VERSION < '3.34') {
+    var Tweener = imports.ui.tweener;
+}
 
 var defineClass = function (classDef) {
     let parentProto = classDef.Extends ? classDef.Extends.prototype : null;
     
-    if (imports.misc.config.PACKAGE_VERSION < '3.31.9') {
+    if (Config.PACKAGE_VERSION < '3.31.9') {
         if (parentProto && (classDef.Extends.name || classDef.Extends.toString()).indexOf('DashToPanel.') < 0) {
             classDef.callParent = function() {
                 let args = Array.prototype.slice.call(arguments);
@@ -114,7 +123,7 @@ var BasicHandler = defineClass({
     add: function(/*unlimited 3-long array arguments*/){
 
         // convert arguments object to array, concatenate with generic
-        let args = Array.concat('generic', Array.slice(arguments));
+        let args = [].concat('generic', [].slice.call(arguments));
         // call addWithLabel with ags as if they were passed arguments
         this.addWithLabel.apply(this, args);
     },
@@ -285,14 +294,6 @@ var getWorkspaceCount = function() {
     return DisplayWrapper.getWorkspaceManager().n_workspaces;
 };
 
-var checkIfWindowHasTransient = function(window) {
-    let hasTransient;
-
-    window.foreach_transient(t => !(hasTransient = true));
-
-    return hasTransient;
-};
-
 var findIndex = function(array, predicate) {
     if (Array.prototype.findIndex) {
         return array.findIndex(predicate);
@@ -322,7 +323,9 @@ var hookVfunc = function(proto, symbol, func) {
         //gjs > 1.53.3
         proto[Gi.hook_up_vfunc_symbol](symbol, func);
     } else {
-        Gi.hook_up_vfunc(proto, symbol, func);
+        //On older gjs, this is how to hook vfunc. It is buggy and can't be used reliably to replace
+        //already hooked functions. Since it's our only use for it, disabled for now (and probably forever) 
+        //Gi.hook_up_vfunc(proto, symbol, func);
     }
 };
 
@@ -397,6 +400,159 @@ var getMouseScrollDirection = function(event) {
     return direction;
 };
 
+var checkIfWindowHasTransient = function(window) {
+    let hasTransient;
+
+    window.foreach_transient(t => !(hasTransient = true));
+
+    return hasTransient;
+};
+
+var activateSiblingWindow = function(windows, direction, startWindow) {
+    let windowIndex = windows.indexOf(global.display.focus_window);
+    let nextWindowIndex = windowIndex < 0 ?
+                          startWindow ? windows.indexOf(startWindow) : 0 : 
+                          windowIndex + (direction == 'up' ? 1 : -1);
+
+    if (nextWindowIndex == windows.length) {
+        nextWindowIndex = 0;
+    } else if (nextWindowIndex < 0) {
+        nextWindowIndex = windows.length - 1;
+    }
+
+    if (windowIndex != nextWindowIndex) {
+        Main.activateWindow(windows[nextWindowIndex]);
+    }
+};
+
+var animateWindowOpacity = function(window, tweenOpts) {
+    //there currently is a mutter bug with the windowactor opacity, starting with 3.34
+    //https://gitlab.gnome.org/GNOME/mutter/issues/836
+
+    if (Config.PACKAGE_VERSION > '3.35') {
+        //on 3.36, a workaround is to use the windowactor's child for the fade animation
+        //this leaves a "shadow" on the desktop, so the windowactor needs to be hidden
+        //when the animation is complete
+        let visible = tweenOpts.opacity > 0;
+        let windowActor = window;
+
+        if (!windowActor.visible && visible) {
+            windowActor.visible = visible;
+        } 
+
+        window = windowActor.get_first_child() || windowActor;
+        tweenOpts.onComplete = () => windowActor.visible = visible;
+    } else if (Config.PACKAGE_VERSION > '3.33') {
+        //the workaround only works on 3.35+, so on 3.34, let's just hide the 
+        //window without animation
+        return window.visible = (tweenOpts.opacity == 255);
+    }
+
+    animate(window, tweenOpts);
+};
+
+var animate = function(actor, options) {
+    if (Tweener) {
+        return Tweener.addTween(actor, options);
+    }
+
+    //to support both Tweener and Clutter animations, we use Tweener "time" 
+    //and "delay" properties defined in seconds, as opposed to Clutter animations 
+    //"duration" and "delay" which are defined in milliseconds
+    if (options.delay) {
+        options.delay = options.delay * 1000;
+    }
+
+    options.duration = options.time * 1000;
+    delete options.time;
+
+    if (options.transition) {
+        //map Tweener easing equations to Clutter animation modes
+        options.mode = {
+            'easeInCubic': Clutter.AnimationMode.EASE_IN_CUBIC,
+            'easeInOutCubic': Clutter.AnimationMode.EASE_IN_OUT_CUBIC,
+            'easeInOutQuad': Clutter.AnimationMode.EASE_IN_OUT_QUAD,
+            'easeOutQuad': Clutter.AnimationMode.EASE_OUT_QUAD
+        }[options.transition] || Clutter.AnimationMode.LINEAR;
+
+        delete options.transition;
+    }
+
+    let params = [options];
+
+    if ('value' in options && actor instanceof St.Adjustment) {
+        params.unshift(options.value);
+        delete options.value;
+    }
+
+    actor.ease.apply(actor, params);
+}
+
+var isAnimating = function(actor, prop) {
+    if (Tweener) {
+        return Tweener.isTweening(actor);
+    }
+
+    return !!actor.get_transition(prop);
+}
+
+var stopAnimations = function(actor) {
+    if (Tweener) {
+        return Tweener.removeTweens(actor);
+    }
+    
+    actor.remove_all_transitions();
+}
+
+var getIndicators = function(delegate) {
+    if (delegate instanceof St.BoxLayout) {
+        return delegate;
+    }
+
+    return delegate.indicators;
+}
+
+var getPoint = function(coords) {
+    if (Config.PACKAGE_VERSION > '3.35.1') {
+        return new imports.gi.Graphene.Point(coords);
+    }
+
+    return new Clutter.Point(coords);
+}
+
+var getPanelGhost = function() {
+    if (!Main.overview._panelGhost) {
+        return Main.overview._overview.get_first_child();
+    }
+
+    return Main.overview._panelGhost;
+}
+
+var notify = function(text, iconName, action, isTransient) {
+    let source = new MessageTray.SystemNotificationSource();
+    let notification = new MessageTray.Notification(source, 'Dash to Panel', text);
+    let notifyFunc = source.showNotification || source.notify;
+    
+    if (iconName) {
+        source.createIcon = function() {
+            return new St.Icon({ icon_name: iconName });
+        };
+    }   
+
+    if (action) {
+        if (!(action instanceof Array)) {
+            action = [action];
+        }
+
+        action.forEach(a => notification.addAction(a.text, a.func));
+    }
+
+    Main.messageTray.add(source);
+
+    notification.setTransient(isTransient);
+    notifyFunc.call(source, notification);
+};
+
 /*
  * This is a copy of the same function in utils.js, but also adjust horizontal scrolling
  * and perform few further cheks on the current value to avoid changing the values when
@@ -441,17 +597,17 @@ var ensureActorVisibleInScrollView = function(scrollView, actor, fadeSize, onCom
         hvalue = Math.min(hupper - hpageSize, x2 + hoffset - hpageSize);
 
     let tweenOpts = {
-        time: Util.SCROLL_TIME,
+        time: SCROLL_TIME,
         onComplete: onComplete || (() => {}),
         transition: 'easeOutQuad'
     };
 
     if (vvalue !== vvalue0) {
-        Tweener.addTween(vadjustment, mergeObjects(tweenOpts, { value: vvalue }));
+        animate(vadjustment, mergeObjects(tweenOpts, { value: vvalue }));
     }
 
     if (hvalue !== hvalue0) {
-        Tweener.addTween(hadjustment, mergeObjects(tweenOpts, { value: hvalue }));
+        animate(hadjustment, mergeObjects(tweenOpts, { value: hvalue }));
     }
 
     return [hvalue- hvalue0, vvalue - vvalue0];
@@ -746,3 +902,61 @@ var DominantColorExtractor = defineClass({
     }
 
 });
+
+var drawRoundedLine = function(cr, x, y, width, height, isRoundLeft, isRoundRight, stroke, fill) {
+    if (height > width) {
+        y += Math.floor((height - width) / 2.0);
+        height = width;
+    }
+    
+    height = 2.0 * Math.floor(height / 2.0);
+    
+    var leftRadius = isRoundLeft ? height / 2.0 : 0.0;
+    var rightRadius = isRoundRight ? height / 2.0 : 0.0;
+    
+    cr.moveTo(x + width - rightRadius, y);
+    cr.lineTo(x + leftRadius, y);
+    if (isRoundLeft)
+        cr.arcNegative(x + leftRadius, y + leftRadius, leftRadius, -Math.PI/2, Math.PI/2);
+    else
+        cr.lineTo(x, y + height);
+    cr.lineTo(x + width - rightRadius, y + height);
+    if (isRoundRight)
+        cr.arcNegative(x + width - rightRadius, y + rightRadius, rightRadius, Math.PI/2, -Math.PI/2);
+    else
+        cr.lineTo(x + width, y);
+    cr.closePath();
+    
+    if (fill != null) {
+        cr.setSource(fill);
+        cr.fillPreserve();
+    }
+    if (stroke != null)
+        cr.setSource(stroke);
+    cr.stroke();
+}
+
+/**
+ * Check if an app exists in the system.
+ */
+var checkedCommandsMap = new Map();
+
+function checkIfCommandExists(app) {
+    let answer = checkedCommandsMap.get(app);
+    if (answer === undefined) {
+        // Command is a shell built in, use shell to call it.
+        // Quotes around app value are important. They let command operate
+        // on the whole value, instead of having shell interpret it.
+        let cmd = "sh -c 'command -v \"" + app + "\"'";
+        try {
+            let out = GLib.spawn_command_line_sync(cmd);
+            // out contains 1: stdout, 2: stderr, 3: exit code
+            answer = out[3] == 0;
+        } catch (ex) {
+            answer = false;
+        }
+
+        checkedCommandsMap.set(app, answer);
+    }
+    return answer;
+}

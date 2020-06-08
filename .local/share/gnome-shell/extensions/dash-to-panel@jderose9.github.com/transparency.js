@@ -23,6 +23,7 @@ const Meta = imports.gi.Meta;
 const St = imports.gi.St;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Panel = Me.imports.panel;
 const Proximity = Me.imports.proximity;
 const Utils = Me.imports.utils;
 
@@ -31,14 +32,16 @@ var DynamicTransparency = Utils.defineClass({
 
     _init: function(dtpPanel) {
         this._dtpPanel = dtpPanel;
-        this._dtpSettings = dtpPanel._dtpSettings;
         this._proximityManager = dtpPanel.panelManager.proximityManager;
         this._proximityWatchId = 0;
         this._windowOverlap = false;
         this.currentBackgroundColor = 0;
 
         this._initialPanelStyle = dtpPanel.panel.actor.get_style();
-        this._initialPanelCornerStyle = dtpPanel.panel._leftCorner.actor.get_style();
+        
+        if (this._dtpPanel.geom.position == St.Side.TOP) {
+            this._initialPanelCornerStyle = dtpPanel.panel._leftCorner.actor.get_style();
+        }
 
         this._signalsHandler = new Utils.GlobalSignalsHandler();
         this._bindSignals();
@@ -53,8 +56,16 @@ var DynamicTransparency = Utils.defineClass({
         this._proximityManager.removeWatch(this._proximityWatchId);
 
         this._dtpPanel.panel.actor.set_style(this._initialPanelStyle);
-        this._dtpPanel.panel._leftCorner.actor.set_style(this._initialPanelCornerStyle);
-        this._dtpPanel.panel._rightCorner.actor.set_style(this._initialPanelCornerStyle);
+        
+        if (this._dtpPanel.geom.position == St.Side.TOP) {
+            this._dtpPanel.panel._leftCorner.actor.set_style(this._initialPanelCornerStyle);
+            this._dtpPanel.panel._rightCorner.actor.set_style(this._initialPanelCornerStyle);
+        }
+    },
+
+    updateExternalStyle: function() {
+        this._updateComplementaryStyles();
+        this._setBackground();
     },
 
     _bindSignals: function() {
@@ -73,7 +84,7 @@ var DynamicTransparency = Utils.defineClass({
                 () => this._updateAlphaAndSet()
             ],
             [
-                this._dtpSettings,
+                Me.settings,
                 [
                     'changed::trans-use-custom-bg',
                     'changed::trans-bg-color'
@@ -81,7 +92,7 @@ var DynamicTransparency = Utils.defineClass({
                 () => this._updateColorAndSet()
             ],
             [
-                this._dtpSettings,
+                Me.settings,
                 [
                     'changed::trans-use-custom-opacity',
                     'changed::trans-panel-opacity',
@@ -92,7 +103,7 @@ var DynamicTransparency = Utils.defineClass({
                 () => this._updateAlphaAndSet()
             ],
             [
-                this._dtpSettings,
+                Me.settings,
                 [
                     'changed::trans-use-custom-gradient',
                     'changed::trans-gradient-top-color',
@@ -103,7 +114,7 @@ var DynamicTransparency = Utils.defineClass({
                 () => this._updateGradientAndSet()
             ],
             [
-                this._dtpSettings,
+                Me.settings,
                 [
                     'changed::trans-dynamic-behavior',
                     'changed::trans-use-dynamic-opacity',
@@ -112,7 +123,7 @@ var DynamicTransparency = Utils.defineClass({
                 () => this._updateProximityWatch()
             ],
             [
-                this._dtpSettings, 
+                Me.settings, 
                 'changed::trans-dynamic-anim-time',
                 () => this._updateAnimationDuration()
             ]
@@ -122,11 +133,15 @@ var DynamicTransparency = Utils.defineClass({
     _updateProximityWatch: function() {
         this._proximityManager.removeWatch(this._proximityWatchId);
 
-        if (this._dtpSettings.get_boolean('trans-use-dynamic-opacity')) {
+        if (Me.settings.get_boolean('trans-use-dynamic-opacity')) {
+            let isVertical = Panel.checkIfVertical();
+            let threshold = Me.settings.get_int('trans-dynamic-distance');
+
             this._proximityWatchId = this._proximityManager.createWatch(
-                this._dtpPanel.panelBox, 
-                Proximity.Mode[this._dtpSettings.get_string('trans-dynamic-behavior')], 
-                0, this._dtpSettings.get_int('trans-dynamic-distance'), 
+                this._dtpPanel.panelBox.get_parent(), 
+                Proximity.Mode[Me.settings.get_string('trans-dynamic-behavior')], 
+                isVertical ? threshold : 0, 
+                isVertical ? 0 : threshold, 
                 overlap => { 
                     this._windowOverlap = overlap;
                     this._updateAlphaAndSet();
@@ -136,7 +151,7 @@ var DynamicTransparency = Utils.defineClass({
     },
 
     _updateAnimationDuration: function() {
-        this.animationDuration = (this._dtpSettings.get_int('trans-dynamic-anim-time') * 0.001) + 's;';
+        this.animationDuration = (Me.settings.get_int('trans-dynamic-anim-time') * 0.001) + 's;';
     },
 
     _updateAllAndSet: function() {
@@ -172,17 +187,17 @@ var DynamicTransparency = Utils.defineClass({
     },
 
     _updateColor: function(themeBackground) {
-        this.backgroundColorRgb = this._dtpSettings.get_boolean('trans-use-custom-bg') ?
-                                  this._dtpSettings.get_string('trans-bg-color') :
+        this.backgroundColorRgb = Me.settings.get_boolean('trans-use-custom-bg') ?
+                                  Me.settings.get_string('trans-bg-color') :
                                   (themeBackground || this._getThemeBackground());
     },
 
     _updateAlpha: function(themeBackground) {
-        if (this._windowOverlap && !Main.overview.visibleTarget && this._dtpSettings.get_boolean('trans-use-dynamic-opacity')) {
-            this.alpha = this._dtpSettings.get_double('trans-dynamic-anim-target');
+        if (this._windowOverlap && !Main.overview.visibleTarget && Me.settings.get_boolean('trans-use-dynamic-opacity')) {
+            this.alpha = Me.settings.get_double('trans-dynamic-anim-target');
         } else {
-            this.alpha = this._dtpSettings.get_boolean('trans-use-custom-opacity') ?
-                         this._dtpSettings.get_double('trans-panel-opacity') : 
+            this.alpha = Me.settings.get_boolean('trans-use-custom-opacity') ?
+                         Me.settings.get_double('trans-panel-opacity') : 
                          (themeBackground || this._getThemeBackground()).alpha * 0.003921569; // 1 / 255 = 0.003921569
         }
     },
@@ -190,12 +205,12 @@ var DynamicTransparency = Utils.defineClass({
     _updateGradient: function() {
         this._gradientStyle = '';
 
-        if (this._dtpSettings.get_boolean('trans-use-custom-gradient')) {
-            this._gradientStyle += 'background-gradient-direction: vertical; ' +
-                                   'background-gradient-start: ' + Utils.getrgbaColor(this._dtpSettings.get_string('trans-gradient-top-color'), 
-                                                                                      this._dtpSettings.get_double('trans-gradient-top-opacity')) + 
-                                   'background-gradient-end: ' + Utils.getrgbaColor(this._dtpSettings.get_string('trans-gradient-bottom-color'), 
-                                                                                    this._dtpSettings.get_double('trans-gradient-bottom-opacity'));
+        if (Me.settings.get_boolean('trans-use-custom-gradient')) {
+            this._gradientStyle += 'background-gradient-direction: ' + (Panel.checkIfVertical() ? 'horizontal;' : 'vertical;') +
+                                   'background-gradient-start: ' + Utils.getrgbaColor(Me.settings.get_string('trans-gradient-top-color'), 
+                                                                                      Me.settings.get_double('trans-gradient-top-opacity')) + 
+                                   'background-gradient-end: ' + Utils.getrgbaColor(Me.settings.get_string('trans-gradient-bottom-color'), 
+                                                                                    Me.settings.get_double('trans-gradient-bottom-opacity'));
         }
     },
 
@@ -205,9 +220,12 @@ var DynamicTransparency = Utils.defineClass({
         let transition = 'transition-duration:' + this.animationDuration;
         let cornerStyle = '-panel-corner-background-color: ' + this.currentBackgroundColor + transition;
 
-        this._dtpPanel.panelBg.set_style('background-color: ' + this.currentBackgroundColor + transition + this._complementaryStyles);
-        this._dtpPanel.panel._leftCorner.actor.set_style(cornerStyle);
-        this._dtpPanel.panel._rightCorner.actor.set_style(cornerStyle);
+        this._dtpPanel.set_style('background-color: ' + this.currentBackgroundColor + transition + this._complementaryStyles);
+        
+        if (this._dtpPanel.geom.position == St.Side.TOP) {
+            this._dtpPanel.panel._leftCorner.actor.set_style(cornerStyle);
+            this._dtpPanel.panel._rightCorner.actor.set_style(cornerStyle);
+        }
     },
 
     _setGradient: function() {

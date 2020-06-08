@@ -38,7 +38,6 @@ const Utils = Me.imports.utils;
 const UBUNTU_DOCK_UUID = 'ubuntu-dock@ubuntu.com';
 
 let panelManager;
-let settings;
 let oldDash;
 let extensionChangedHandler;
 let disabledUbuntuDock;
@@ -46,6 +45,9 @@ let extensionSystem = (Main.extensionManager || imports.ui.extensionSystem);
 
 function init() {
     Convenience.initTranslations(Utils.TRANSLATION_DOMAIN);
+    
+    //create an object that persists until gnome-shell is restarted, even if the extension is disabled
+    Me.persistentStorage = {};
 }
 
 function enable() {
@@ -86,8 +88,12 @@ function _enable() {
 
     if (panelManager) return; //already initialized
 
-    settings = Convenience.getSettings('org.gnome.shell.extensions.dash-to-panel');
-    panelManager = new PanelManager.dtpPanelManager(settings);
+    Me.settings = Convenience.getSettings('org.gnome.shell.extensions.dash-to-panel');
+    Me.desktopSettings = Convenience.getSettings('org.gnome.desktop.interface');
+
+    Me.imports.update.init();
+    panelManager = new PanelManager.dtpPanelManager();
+
     panelManager.enable();
     
     Utils.removeKeybinding('open-application-menu');
@@ -95,7 +101,7 @@ function _enable() {
         'open-application-menu',
         new Gio.Settings({ schema_id: WindowManager.SHELL_KEYBINDINGS_SCHEMA }),
         Lang.bind(this, function() {
-            if(settings.get_boolean('show-appmenu'))
+            if(Me.settings.get_boolean('show-appmenu'))
                 Main.wm._toggleAppMenu();
             else
                 panelManager.primaryPanel.taskbar.popupFocusedAppSecondaryMenu();
@@ -112,9 +118,10 @@ function _enable() {
 function disable(reset) {
     panelManager.disable();
     Main.overview._dash = oldDash;
-    settings.run_dispose();
+    Me.settings.run_dispose();
+    Me.desktopSettings.run_dispose();
 
-    settings = null;
+    delete Me.settings;
     oldDash = null;
     panelManager = null;
     
@@ -132,7 +139,7 @@ function disable(reset) {
 
         // Re-enable Ubuntu Dock if it was disabled by dash to panel
         if (disabledUbuntuDock && Main.sessionMode.allowExtensions) {
-            extensionSystem.enableExtension(UBUNTU_DOCK_UUID);
+            (extensionSystem._callExtensionEnable || extensionSystem.enableExtension).call(extensionSystem, UBUNTU_DOCK_UUID);
         }
     }
 }

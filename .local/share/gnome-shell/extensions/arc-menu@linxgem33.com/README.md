@@ -1,8 +1,8 @@
-![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/arc-wide-banner-new.png)
+![](https://gitlab.com/LinxGem33/Neon/raw/master/new-arcmenu-wide-banner.png)
 
 -----
 
-![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/browserAM.png)
+![](https://gitlab.com/LinxGem33/Neon/raw/master/arcmenu-browser.png)
 
 -----
 ### Introduction
@@ -11,17 +11,9 @@ Arc Menu is a Gnome shell extension designed to replace the standard menu found 
 
 -----
 
-### Development Roadmap !
-
-If your interested to see the current development cycle of Arc menu or the current status of a particular feature in development then head over to the new Development Roadmap page which will give you a idea of what’s planned or what’s currently being developed by the Arc menu team the link is below.
-
-Please see the: [Development Roadmap Page](https://gitlab.com/LinxGem33/Arc-Menu/issues/54)
-
------
-
 ### Volunteers needed!
 
-This extension could be even better with your help! Any items in the issue tracker labelled **Help Needed** or **Good First Issue** are open for contribution and help. For more info, see the [Contributing Feature List](https://gitlab.com/LinxGem33/Arc-Menu/issues/54) for more details on current issues or features which need your help.
+This extension could be even better with your help! Any items in the issue tracker labelled **Help Needed** or **Good First Issue** are open for contribution. For more info, see the [Contributing Feature List](https://gitlab.com/LinxGem33/Arc-Menu/issues/54) for more details on current issues or features which need your help.
 
 ![image](/uploads/85b3cf3baea40163ffc5c115b7d7306e/image.png)  ![image](/uploads/d5b2fb82db8d2955923d327caef8e4aa/image.png)
 
@@ -31,7 +23,7 @@ This extension could be even better with your help! Any items in the issue track
 
 -----
 
-![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/amu3.png)
+![](https://gitlab.com/LinxGem33/Neon/raw/master/comp-screen-arcmenu-wide.png)
 
 -----
 
@@ -39,13 +31,15 @@ This extension could be even better with your help! Any items in the issue track
 
 -----
 
-![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/amu33.png)
+![](https://gitlab.com/LinxGem33/Neon/-/raw/master/dash-to-dock-inter-screen.png)
 
 -----
 
 ### Installation
 
-You can now install this extension from **extensions.gnome.org** as a one click install just click on the link below
+#### To install the most recent official release: Visit ArcMenu on the [Official GNOME Extensions](https://extensions.gnome.org/extension/1228/arc-menu/) website.
+
+- **To install a Development version from source**: Please see the: [Install From Source wiki Guide](https://gitlab.com/LinxGem33/Arc-Menu/-/wikis/Install%20From%20Source%20Guide).
 
 <p align="left">
        <a href="https://extensions.gnome.org/extension/1228/arc-menu/" >
@@ -53,36 +47,12 @@ You can now install this extension from **extensions.gnome.org** as a one click 
     </a>
 </p>
 
-
------
-
-### Manual Installation
-For installing Arc-Menu manually from source;
-
-Please take a look at the [Manual Installation Guide](https://gitlab.com/LinxGem33/Arc-Menu/wikis/Install-From-Source-Guide) 
-on the Arc-Menu Wiki.
-
 -----
 
 ### Dependencies
 
 __Please note:__ For Arc-Menu to work properly, your GNOME Desktop must have the
-following dependencies installed.
-
-|On Ubuntu/Debian based systems||On Arch based systems||
-|-----|:-----:|-----|:-----:|
-|gnome-shell-extensions|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|gnome-shell-extensions|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|gnome-tweak-tool|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|gnome-tweak-tool|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|gnome-menus|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|gnome-menus|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|gnome-session|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-
-#### Please Read: 
-
-Legacy versions of Arc Menu can be obtained from the sources below;
-
-[legacy-version-3.30](https://gitlab.com/LinxGem33/Arc-Menu/tree/legacy-version-3.30) repository branch alternatively download the source code via the [v22 tag](https://gitlab.com/LinxGem33/Arc-Menu/tags/v22).
-
-- **Please Note:** the legacy version branch will not include the new features and updates found in the gnome-shell 3.32 and above builds.
+following [dependencies installed](https://gitlab.com/LinxGem33/Arc-Menu/wikis/Arc-Menu-Dependencies).
 
 -----
 
@@ -100,6 +70,13 @@ Bugs should be reported [here](https://gitlab.com/LinxGem33/Arc-Menu/issues) on 
 
 -----
 
+Please refer to the Wiki section for a guide on: [Reporting Bugs](https://gitlab.com/LinxGem33/Arc-Menu/wikis/Bug-Reporting)
+
+Please note that without any information about your system, the Arc Menu Team can only speculate what the problem is.
+So, please provide us information about your GNU/Linux distribution and the GNOME Shell version. Otherwise, we are not able to try and solve your problem.
+
+-----
+
 ### Conduct
 
 There are basic rules of conduct that should be followed at all times by everyone participating in the discussions.  While this is generally a relaxed environment, please remember the following:
@@ -113,13 +90,6 @@ There are basic rules of conduct that should be followed at all times by everyon
 
 -----
 
-Please refer to the Wiki section for a guide on: [Reporting Bugs](https://gitlab.com/LinxGem33/Arc-Menu/wikis/Bug-Reporting)
-
-Please note that without any information about your system, the Arc Menu Team can only speculate what the problem is.
-So, please provide us information about your GNU/Linux distribution and the GNOME Shell version. Otherwise, we are not able to try and solve your problem.
-
------
-
 [![GNU GPL Image](https://www.gnu.org/graphics/slickgnu.tiny.png)](http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html)  
 ### License & Terms ![](https://gitlab.com/LinxGem33/IP-Finder/raw/master/screens/Copyleft-16.png)
 
@@ -127,39 +97,65 @@ Arc Menu is available under the terms of the GPL-2.0 license See [`COPYING`](htt
 
 Arc-Menu is Free Software: You can use, study share and improve it at your will. Specifically you can redistribute and/or modify it under the terms of the [GNU General Public License](https://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation, either version 2 of the License, or (at your option) any later version. 
 
+All ArcMenu's Image assets including wiki images, Icons and application Image assets are created by [LinxGem33](https://gitlab.com/LinxGem33) and licensed under; [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
+[Exceptions]() Trademarked icons (logo) (name) please see `Legal disclaimer for brand icons and trademarks` below regarding Distro icons section for more details.
+
+<details>
+<summary><b>Legal disclaimer for brand icons and trademarks..</b></summary>
+
+<p>
+
+**Legal disclaimer for brand icons and trademarks..**
+
+*" All brand icons are trademarks of their respective owners. The use of these trademarks does not indicate endorsement of the trademark holder by Arc Menu project, nor vice versa. Please do not use brand logos for any purpose except to represent the company, product, or service to which they refer. "*
+
+* **UBUNTU ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg)** - Ubuntu name and Ubuntu logo is a trademark of Canonical ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg) Ltd.
+
+* **FEDORA ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg)** - Fedora and the Infinity design logo are trademarks of Red Hat, Inc.
+
+* **DEBIAN ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg)** - is a registered trademark owned by Software in the Public Interest, Inc. Debian trademark is a registered United States trademark of Software in the Public Interest, Inc., managed by the Debian project.
+
+* **MANJARO ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg)** - (logo) and name is a trademark of Manjaro GmbH & Co. KG
+
+* **POP_OS! ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg)** - Name and (logo) is a trademark of system 76 ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg) Inc.
+
+* **ARCH LINUX ![copyright2.svg](/uploads/c5f15274ae7fffddf1f2e3dcda5971d8/copyright2.svg)** - The stylized Arch Linux logo are recognised trademarks of Arch Linux, copyright 2002-2017 Judd Vinet and Aaron Griffin
+
+</p>
+</details>
+
 -----
 
 ### Credits
 
 
-Additional credits: This extension also leverages the work from [Giovanni Campagna ](https://git.gnome.org//browse/gnome-shell-extensions) gnome Application Menu used in [Gnome 3](https://www.gnome.org/) to allow the menu to be embedded in the Gnome main panel This extension also leverages some of the work from [Zorin OS menu](https://zorinos.com/)..
+Additional credits: This extension also leverages the work from [Giovanni Campagna ](https://git.gnome.org//browse/gnome-shell-extensions) gnome Application Menu used in [Gnome 3](https://www.gnome.org/) to allow the menu to be embedded in the Gnome main panel This extension also leverages some of the work from Zorin OS.
+This extension also leverages some code from the gnome-shell adapted to be used for ArcMenu and also uses adapted code from Dash to Panel's Utils.js to allow the ArcMenu to be used for different Gnome-shell versions.
 
 -----
 
 ### Current Active Developers
 
-|Status|Active|Unavailable|Inactive|
-|-----|:-----:|:-----:|:-----:|
-|Status icon|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/in-progress.png)|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/refused.svg.png)|
-|Explanation|Active means the developer is maintaining or offering support or developing the code base.|Unavailable means that the developer is no longer adding code or offering support but is still excepting pull requests and merge requests.|Inactive means there is no code being added or support offered and is no longer accepting pull requests.|
+-----
 
+### @[LinxGem33](https://gitlab.com/LinxGem33) | Founder - Maintainer -  Digital Art Designer |
 
+Hi I'm LinxGem33 aka Andy and the founder of Arc menu, my role on the project is to manage and plan the technical and digital production and distribution of the Arc menu software, as you can imagine I’m a open source and Linux software enthusiast as well as a digital art designer and amateur GTK3 theme developer,I also like to contribute to other projects where i can.
 
-|Developer|Current Task|Status|Short/Bio|
-|:-----:|:-----:|:-----:|:-----|
-|@[LinxGem33](https://gitlab.com/LinxGem33)|Maintainer - Developer - Digital Art Designer|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/in-progress.png)|Hi I'm LinxGem33 aka Andy and the founder of Arc menu, my role on the project is to manage and plan the technical and digital production and distribution of the Arc menu software, as you can imagine I’m a open source and Linux software enthusiast as well as a digital art designer and amateur GTK3 theme developer,I also like to contribute to other projects where i can. |
-|@[Andrew  Zaech](https://gitlab.com/AndrewZaech)|Developer - UI/Backend|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)||
+-----
 
+### @[Andrew  Zaech](https://gitlab.com/AndrewZaech) | Lead Project JS Developer - UX/Backend Developer |
+
+Hi, I’m Andrew. My role on the project is to design, create, and implement features for the ArcMenu extension. I’m also involved in the code review process and front-end work, as well as improving the UX of ArcMenu. I also work on performance improvements and bug fixes, and provide help to our users with any issues related to ArcMenu.
 
 -----
 
 ### Top Project Contributors
 
-#### @[lexruee](https://github.com/lexruee) - **Project Developer** - UI/UX Designer
+#### @[lexruee](https://github.com/lexruee) - **Project Contributor** - UI/UX Designer | - @[Thomas Ingvarsson](https://gitlab.com/tingvarsson) - **Project Contributor** - Developer
 
-#### @[Thomas Ingvarsson](https://gitlab.com/tingvarsson) - **Project Contributor** - Developer
-
-#### @[Andrew Zaech](https://gitlab.com/AndrewZaech) - **Project Contributor** - Developer
+#### @[charlesg99](https://github.com/charlesg99) - **Project Contributor** - Developer 
 
 -----
 
@@ -171,36 +167,52 @@ Additional credits: This extension also leverages the work from [Giovanni Campag
 
 #### Thanks to the following people for contributing via pull requests:
 
-- @[fishears](https://github.com/fishears/Arc-Menu) (1) compiling the schema's (2) Added suspend button and re-order buttons
-- @[JasonLG1979](https://github.com/JasonLG1979)  (1) menu style fix, (2) Asynchronously set an icon and handle errors
-- @[itmitica](https://github.com/itmitica) (1) icon symbolic
+-----
+
+**@[fishears](https://github.com/fishears/Arc-Menu)** | **@[JasonLG1979](https://github.com/JasonLG1979)** | **@[itmitica](https://github.com/itmitica)** | **@[vikaig](https://gitlab.com/vikaig)** | **- @[MagneFire](https://gitlab.com/MagneFire)**
+
+-----
 
 #### Bug Fixes:
 
-- @[JasonLG1979](https://github.com/JasonLG1979) (1) menu style fix
-- @[lexruee](https://github.com/lexruee/Arc-Menu) (1) correctly restore the Activities button
-- @[charlesg99](https://github.com/charlesg99) (1) Disconnect height notification signal ,(2) Prevent duplicate destruction of the menu sections
+-----
+
+**@[JasonLG1979](https://github.com/JasonLG1979)**  | **@[lexruee](https://github.com/lexruee/Arc-Menu)**
+
+-----
+
+### Translations
+
+-----
+
+**Disclaimer..**
+
+*" Translations are not provided by the ArcMenu team members and may contain incorrect or inaccurate translations. The ArcMenu team relies on user contributions for translations. Therefore if you wish to correct or modify a translation that you feel is inaccurate please send a Merge Request with a brief description with the reason for any corrections. "*
+
+Kind regards - **ArcMenu Team**
 
 -----
 
 #### Please refer to the Wiki section for a [Translation Guide](https://gitlab.com/LinxGem33/Arc-Menu/wikis/Translation-Guide)
 
-|Contributor|Language|Translated|Contributor|Language|Translated|
-|:-----|:-----|:-----:|:-----|:-----|:-----:|
-|@[h3r0n](https://github.com/h3r0n)|Italian|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[megasyl](https://github.com/megasyl) > updated by @[16NoCo](https://github.com/16NoCo)|French|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|@[pkomur](https://github.com/pkomur) > updated by @[Ixoos](https://github.com/Ixoos)|Polish|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[madaramost](https://github.com/madaramost)|Arabic|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|@[danielstuart14](https://github.com/danielstuart14)|Brazilian portuguese|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)||Chinese|
-|@[zakkak](https://github.com/zakkak)|Greek|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[mjtullio](https://github.com/mjtullio)|Spanish|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|@[mrprobot](https://github.com/mrprobot) > updated by @[Etamuk](https://gitlab.com/Etamuk)|German|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[saisasidhar](https://github.com/saisasidhar)|Hindi|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-||Portuguese|||Bengali||
-|@[elsieholmes](https://github.com/elsieholmes)|Russian|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)||Japanese||
-|@[MorganAntonsson](https://github.com/MorganAntonsson)|Swedish|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)||Dutch||
-|@[neynefes](https://github.com/neynefes)|Turkish|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)||Javanese||
-|@[elsieholmes](https://github.com/elsieholmes)|Ukrainian|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[PSSGCSim](https://github.com/PSSGCSim)|Czech|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|@[ipanamski](https://github.com/ipanamski)|Bulgarian|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[muhfajar](https://github.com/muhfajar) > updated by @[emhaye](https://github.com/emhaye)|Indonesian|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)
-|@[artnay](https://github.com/artnay)|Finnish|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|@[Lrss](https://github.com/Lrss)|Danish|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)|
-|@[Faenriis](https://github.com/Faenriis)|Serbian|![](https://gitlab.com/LinxGem33/Neon/raw/master/artwork/done.svg.png)||||
+- **Current translated languages and translators..**
 
 -----
 
- ![](https://img.shields.io/badge/Language-JavaScript-yellow.svg) ![](https://img.shields.io/badge/Licence-GPL--2.0-blue.svg)
+**- @[Nilvus](https://gitlab.com/Nilvus) - French** | **- @[Etamuk](https://gitlab.com/Etamuk) - German** | **- @[alex4401](https://gitlab.com/alex4401) - Polish** | **- @[frnogueira](https://gitlab.com/frnogueira) - Brazilian Portuguese** | **- @[sigbjokj](https://gitlab.com/sigbjokj) - Norwegian** |
+
+-----
+
+ **- @[AlexWayfer](https://gitlab.com/AlexWayfer) - Russian** | **- @[gkkulik](https://gitlab.com/gkkulik) - Silesian** | **- @[vikaig](https://gitlab.com/vikaig) - Ukrainian** | **- @[jordim](https://gitlab.com/jordim) - Catalan** | **- @[libreajans](https://gitlab.com/libreajans) - Turkish** |
+ 
+-----
+
+ **- @[MorganAntonsson](https://gitlab.com/MorganAntonsson) - Swedish** | **- @[jiri.doubravsky](https://gitlab.com/jiri.doubravsky) - czech** | **- @[juanlucer](https://gitlab.com/juanlucer) - Spanish** | **- @[plesry](https://gitlab.com/plesry) - Chinese (Taiwan)** |
+
+-----
+
+ **- @[Vombato](https://gitlab.com/Vombato) - Italian** | **- @[skygmin](https://gitlab.com/skygmin) - Simplified Chinese** | **- @[vinno97](https://gitlab.com/vinno97) - Dutch** | **- @[artnay](https://gitlab.com/artnay) - Finnish** |  **- @[rimasx](https://gitlab.com/rimasx) - Estonian** |
+ 
+-----
+
+ **- @[stevendobay](https://gitlab.com/stevendobay) - Hungarian** |
