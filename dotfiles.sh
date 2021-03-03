@@ -31,6 +31,9 @@ curl --version || fail "Missing cURL!"
 success "Ready to go!"
 
 info "Installing zsh..."
+{
+sudo apt install zsh
+} || {
 git clone git@github.com:zsh-users/zsh.git || fail "Couldn't get zsh from git"
 cd zsh
 ./Util/preconfig	|| fail "Zsh preconfiguration failed"
@@ -40,6 +43,7 @@ make				|| fail "Zsh make failed"
 sudo make install 	|| fail "Zsh installation failed"
 cd ..
 rm -rf zsh
+}
 success "Installed Zsh"
 
 info "Installing oh-my-zsh..."
@@ -47,8 +51,12 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 success "Installed oh-my-zsh"
 
 info "Installing micro..."
+{
+sudo snap install --classic micro
+} || {
 curl https://getmic.ro | bash
 sudo install ./micro /usr/bin
+}
 info "Setting micro as default editor..."
 echo "SELECTED_EDITOR=\"/usr/bin/micro\""
 sudo ln -bs /usr/bin/sensible-editor /usr/bin/edit
